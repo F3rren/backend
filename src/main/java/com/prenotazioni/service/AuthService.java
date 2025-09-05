@@ -18,12 +18,14 @@ public class AuthService {
     public Utente register(RegisterRequest request) {
         if (utenteRepository.findByEmail(request.getEmail()) != null) return null;
         if (utenteRepository.findByUsername(request.getUsername()) != null) return null;
+        
         Utente utente = new Utente();
-        utente.setUsername(request.getUsername());
         utente.setEmail(request.getEmail());
+        utente.setNome(request.getNome()); 
         utente.setPassword(request.getPassword());
         utente.setRuolo(request.getRuolo());
-        utente.setNome(""); // opzionale
+        utente.setUsername(request.getUsername());
+
         return utenteRepository.save(utente);
     }
 }
