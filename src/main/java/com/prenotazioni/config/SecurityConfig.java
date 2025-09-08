@@ -19,6 +19,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/login", "/api/auth/register", "/h2-console/**").permitAll()
                 .requestMatchers("/api/me").authenticated()
+                .requestMatchers("/api/admin/**").authenticated() // Tutti gli endpoint admin richiedono autenticazione
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

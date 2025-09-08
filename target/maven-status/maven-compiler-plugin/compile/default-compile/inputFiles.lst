@@ -4,14 +4,15 @@ C:\Users\Utente\Desktop\PrenotazioniAuleFullStack\backend\src\main\java\com\pren
 C:\Users\Utente\Desktop\PrenotazioniAuleFullStack\backend\src\main\java\com\prenotazioni\model\Prenotazione.java
 C:\Users\Utente\Desktop\PrenotazioniAuleFullStack\backend\src\main\java\com\prenotazioni\repository\UtenteRepository.java
 C:\Users\Utente\Desktop\PrenotazioniAuleFullStack\backend\src\main\java\com\prenotazioni\service\JwtService.java
-C:\Users\Utente\Desktop\PrenotazioniAuleFullStack\backend\src\main\java\com\prenotazioni\controller\AuthController.java
 C:\Users\Utente\Desktop\PrenotazioniAuleFullStack\backend\src\main\java\com\prenotazioni\model\Utente.java
 C:\Users\Utente\Desktop\PrenotazioniAuleFullStack\backend\src\main\java\com\prenotazioni\repository\AulaRepository.java
 C:\Users\Utente\Desktop\PrenotazioniAuleFullStack\backend\src\main\java\com\prenotazioni\controller\MeController.java
 C:\Users\Utente\Desktop\PrenotazioniAuleFullStack\backend\src\main\java\com\prenotazioni\PrenotazioniAuleBackendApplication.java
 C:\Users\Utente\Desktop\PrenotazioniAuleFullStack\backend\src\main\java\com\prenotazioni\service\AuthService.java
 C:\Users\Utente\Desktop\PrenotazioniAuleFullStack\backend\src\main\java\com\prenotazioni\repository\PrenotazioneRepository.java
+C:\Users\Utente\Desktop\PrenotazioniAuleFullStack\backend\src\main\java\com\prenotazioni\controller\admin\AdminController.java
 C:\Users\Utente\Desktop\PrenotazioniAuleFullStack\backend\src\main\java\com\prenotazioni\dto\RegisterRequest.java
 C:\Users\Utente\Desktop\PrenotazioniAuleFullStack\backend\src\main\java\com\prenotazioni\model\Corso.java
 C:\Users\Utente\Desktop\PrenotazioniAuleFullStack\backend\src\main\java\com\prenotazioni\config\CorsConfig.java
 C:\Users\Utente\Desktop\PrenotazioniAuleFullStack\backend\src\main\java\com\prenotazioni\config\SecurityConfig.java
+C:\Users\Utente\Desktop\PrenotazioniAuleFullStack\backend\src\main\java\com\prenotazioni\controller\auth\AuthController.java

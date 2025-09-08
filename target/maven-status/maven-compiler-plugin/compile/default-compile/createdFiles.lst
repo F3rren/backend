@@ -1,7 +1,6 @@
 com\prenotazioni\model\Corso.class
 com\prenotazioni\config\JwtAuthFilter.class
 com\prenotazioni\repository\UtenteRepository.class
-com\prenotazioni\controller\AuthController$LoginRequest.class
 com\prenotazioni\service\AuthService.class
 com\prenotazioni\model\Utente.class
 com\prenotazioni\config\CorsConfig.class
@@ -11,7 +10,6 @@ com\prenotazioni\model\Prenotazione.class
 com\prenotazioni\service\JwtService.class
 com\prenotazioni\config\SecurityConfig.class
 com\prenotazioni\repository\AulaRepository.class
-com\prenotazioni\controller\AuthController.class
 com\prenotazioni\dto\RegisterRequest.class
 com\prenotazioni\repository\PrenotazioneRepository.class
 com\prenotazioni\controller\MeController.class

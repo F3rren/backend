@@ -46,4 +46,13 @@ public class JwtService {
             .getBody()
             .getSubject();
     }
+
+	public String getRuoloFromToken(String token) {
+		return Jwts.parser()
+            .setSigningKey(key)
+            .build()
+            .parseClaimsJws(token)
+            .getBody()
+            .get("ruolo", String.class);
+    }
 }
