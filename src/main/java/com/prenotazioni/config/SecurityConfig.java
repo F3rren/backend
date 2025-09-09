@@ -20,6 +20,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/login", "/api/auth/register", "/h2-console/**").permitAll()
                 .requestMatchers("/api/me").authenticated()
                 .requestMatchers("/api/admin/**").authenticated() // Tutti gli endpoint admin richiedono autenticazione
+                .requestMatchers("/api/rooms/**").authenticated() // Endpoint aule accessibile a tutti gli utenti autenticati
+                .requestMatchers("/api/prenotazioni/**").authenticated() // Endpoint prenotazioni accessibile a tutti gli utenti autenticati
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

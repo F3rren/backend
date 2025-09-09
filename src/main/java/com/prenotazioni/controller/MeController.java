@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class MeController {
     @Autowired
     private UtenteRepository utenteRepository;
-    @Autowired
-    private JwtService jwtService;
 
     @GetMapping
     public ResponseEntity<?> getMe(Authentication authentication) {

@@ -2,8 +2,11 @@ package com.prenotazioni.controller.admin;
 
 import com.prenotazioni.service.AuthService;
 import com.prenotazioni.service.JwtService;
+import com.prenotazioni.service.AulaService;
 import com.prenotazioni.dto.RegisterRequest;
+import com.prenotazioni.dto.AulaRequest;
 import com.prenotazioni.model.Utente;
+import com.prenotazioni.model.Aula;
 
 import java.util.Collections;
 import java.util.List;
@@ -21,6 +24,8 @@ public class AdminController {
     private AuthService authService;
     @Autowired
     private JwtService jwtService;
+    @Autowired
+    private AulaService aulaService;
 
     // Metodo privato per verificare se l'utente è admin
     private ResponseEntity<?> checkAdminAccess(String authHeader) {
@@ -136,33 +141,91 @@ public class AdminController {
         );
     }
 
-    // Gestione stanze - Creazione stanza
-    @PostMapping("/createrooms")
-    public ResponseEntity<?> createRoom(@RequestBody Object roomRequest, @RequestHeader("Authorization") String authHeader) {
+    // Lista tutte le aule
+    @GetMapping("/rooms")
+    public ResponseEntity<?> getAllRooms(@RequestHeader("Authorization") String authHeader) {
         ResponseEntity<?> accessCheck = checkAdminAccess(authHeader);
         if (accessCheck != null) {
             return accessCheck;
         }
 
-        // TODO: Implementare logica di creazione stanza
+        List<Aula> aule = aulaService.getAllAule();
+        if (aule == null || aule.isEmpty()) {
+            return new ResponseEntity<>(
+                Collections.singletonMap("message", "Nessuna aula trovata"),
+                HttpStatus.OK
+            );
+        }
+
         return new ResponseEntity<>(
-            Collections.singletonMap("message", "Funzionalità creazione stanza da implementare"),
-            HttpStatus.NOT_IMPLEMENTED
+            Collections.singletonMap("rooms", aule),
+            HttpStatus.OK
+        );
+    }
+
+    // Ottieni singola aula per ID
+    @GetMapping("/rooms/{id}")
+    public ResponseEntity<?> getRoomById(@PathVariable Long id, @RequestHeader("Authorization") String authHeader) {
+        ResponseEntity<?> accessCheck = checkAdminAccess(authHeader);
+        if (accessCheck != null) {
+            return accessCheck;
+        }
+
+        java.util.Optional<Aula> aula = aulaService.getAulaById(id);
+        if (aula.isEmpty()) {
+            return new ResponseEntity<>(
+                Collections.singletonMap("error", "Aula non trovata"),
+                HttpStatus.NOT_FOUND
+            );
+        }
+
+        return new ResponseEntity<>(
+            Collections.singletonMap("room", aula.get()),
+            HttpStatus.OK
+        );
+    }
+
+    // Gestione stanze - Creazione stanza
+    @PostMapping("/createrooms")
+    public ResponseEntity<?> createRoom(@RequestBody AulaRequest roomRequest, @RequestHeader("Authorization") String authHeader) {
+        ResponseEntity<?> accessCheck = checkAdminAccess(authHeader);
+        if (accessCheck != null) {
+            return accessCheck;
+        }
+
+        Aula nuovaAula = aulaService.createAula(roomRequest);
+        if (nuovaAula == null) {
+            return new ResponseEntity<>(
+                Collections.singletonMap("error", "Impossibile creare l'aula. Verifica che il nome non sia già esistente e che i dati siano validi."),
+                HttpStatus.BAD_REQUEST
+            );
+        }
+
+        return new ResponseEntity<>(
+            Collections.singletonMap("message", "Aula creata con successo"),
+            HttpStatus.CREATED
         );
     }
 
     // Modifica stanza
     @PutMapping("/rooms/{id}")
-    public ResponseEntity<?> updateRoom(@PathVariable Long id, @RequestBody Object roomRequest, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> updateRoom(@PathVariable Long id, @RequestBody AulaRequest roomRequest, @RequestHeader("Authorization") String authHeader) {
         ResponseEntity<?> accessCheck = checkAdminAccess(authHeader);
         if (accessCheck != null) {
             return accessCheck;
         }
 
-        // TODO: Implementare logica di modifica stanza
+        Aula aulaAggiornata = aulaService.updateAula(id, roomRequest);
+        if (aulaAggiornata == null) {
+            return new ResponseEntity<>(
+                Collections.singletonMap("error", "Impossibile aggiornare l'aula. Verifica che l'ID sia corretto e che i dati siano validi."),
+                HttpStatus.BAD_REQUEST
+            );
+        }
+
         return new ResponseEntity<>(
-            Collections.singletonMap("message", "Funzionalità modifica stanza da implementare"),
-            HttpStatus.NOT_IMPLEMENTED
+            Collections.singletonMap("message", "Aula aggiornata con successo"),
+            HttpStatus.OK
         );
     }
 
@@ -174,10 +237,17 @@ public class AdminController {
             return accessCheck;
         }
 
-        // TODO: Implementare logica di eliminazione stanza
+        boolean eliminata = aulaService.deleteAula(id);
+        if (!eliminata) {
+            return new ResponseEntity<>(
+                Collections.singletonMap("error", "Impossibile eliminare l'aula. Verifica che l'ID sia corretto."),
+                HttpStatus.NOT_FOUND
+            );
+        }
+
         return new ResponseEntity<>(
-            Collections.singletonMap("message", "Funzionalità eliminazione stanza da implementare"),
-            HttpStatus.NOT_IMPLEMENTED
+            Collections.singletonMap("message", "Aula eliminata con successo"),
+            HttpStatus.OK
         );
     }
 }

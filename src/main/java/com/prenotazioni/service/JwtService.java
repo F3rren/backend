@@ -55,4 +55,13 @@ public class JwtService {
             .getBody()
             .get("ruolo", String.class);
     }
+    
+    public Long getUserIdFromToken(String token) {
+		return Jwts.parser()
+            .setSigningKey(key)
+            .build()
+            .parseClaimsJws(token)
+            .getBody()
+            .get("id", Long.class);
+    }
 }
