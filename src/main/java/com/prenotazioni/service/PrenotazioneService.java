@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -191,5 +192,36 @@ public class PrenotazioneService {
     // Lista prenotazioni per utente
     public List<Prenotazione> getPrenotazioniUtente(Long utenteId) {
         return prenotazioneRepository.findByUtenteId(utenteId);
+    }
+    
+    // Ottieni dettagli completi per una specifica aula
+    public List<Map<String, Object>> getRoomCompleteDetails(Long aulaId) {
+        return prenotazioneRepository.findCompleteDetailsByAulaId(aulaId);
+    }
+    
+    // Ottieni dettagli completi di tutte le prenotazioni
+    public List<Map<String, Object>> getAllCompleteDetails() {
+        return prenotazioneRepository.findAllCompleteDetails();
+    }
+    
+    // Ottieni una singola prenotazione per ID
+    public Prenotazione getPrenotazioneById(Long id) {
+        Optional<Prenotazione> prenotazione = prenotazioneRepository.findById(id);
+        return prenotazione.orElse(null);
+    }
+    
+    // Ottieni dettagli completi per una singola prenotazione
+    public List<Map<String, Object>> getPrenotazioneCompleteDetails(Long prenotazioneId) {
+        return prenotazioneRepository.findCompleteDetailsByPrenotazioneId(prenotazioneId);
+    }
+    
+    // Lista prenotazioni per stato
+    public List<Prenotazione> getPrenotazioniByStato(StatoPrenotazione stato) {
+        return prenotazioneRepository.findByStato(stato);
+    }
+    
+    // Lista prenotazioni future
+    public List<Prenotazione> getPrenotazioniFuture() {
+        return prenotazioneRepository.findPrenotazioniFuture(LocalDateTime.now());
     }
 }

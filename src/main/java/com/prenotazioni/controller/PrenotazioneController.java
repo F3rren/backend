@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Collections;
 import java.util.List;
@@ -229,6 +228,148 @@ public class PrenotazioneController {
         
         return new ResponseEntity<>(
             Collections.singletonMap("message", "Prenotazione annullata con successo"),
+            HttpStatus.OK
+        );
+    }
+
+    // ========== NUOVI ENDPOINT PER GESTIONE PRENOTAZIONI ==========
+
+    // Lista tutte le prenotazioni (semplice) - ACCESSIBILE A TUTTI GLI UTENTI AUTENTICATI
+    @GetMapping
+    public ResponseEntity<?> getAllPrenotazioni(@RequestHeader("Authorization") String authHeader) {
+        ResponseEntity<?> authCheck = checkAuth(authHeader);
+        if (authCheck != null) {
+            return authCheck;
+        }
+
+        List<Prenotazione> prenotazioni = prenotazioneService.getAllPrenotazioni();
+        if (prenotazioni == null || prenotazioni.isEmpty()) {
+            return new ResponseEntity<>(
+                Collections.singletonMap("message", "Nessuna prenotazione trovata"),
+                HttpStatus.OK
+            );
+        }
+
+        return new ResponseEntity<>(
+            Collections.singletonMap("prenotazioni", prenotazioni),
+            HttpStatus.OK
+        );
+    }
+
+    // Singola prenotazione per ID (semplice) - ACCESSIBILE A TUTTI GLI UTENTI AUTENTICATI
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getPrenotazioneById(@PathVariable Long id, @RequestHeader("Authorization") String authHeader) {
+        ResponseEntity<?> authCheck = checkAuth(authHeader);
+        if (authCheck != null) {
+            return authCheck;
+        }
+
+        Prenotazione prenotazione = prenotazioneService.getPrenotazioneById(id);
+        if (prenotazione == null) {
+            return new ResponseEntity<>(
+                Collections.singletonMap("error", "Prenotazione non trovata"),
+                HttpStatus.NOT_FOUND
+            );
+        }
+
+        return new ResponseEntity<>(
+            Collections.singletonMap("prenotazione", prenotazione),
+            HttpStatus.OK
+        );
+    }
+
+    // Dettagli completi di una prenotazione specifica - ACCESSIBILE A TUTTI GLI UTENTI AUTENTICATI
+    @GetMapping("/{id}/details")
+    public ResponseEntity<?> getPrenotazioneDetailsById(@PathVariable Long id, @RequestHeader("Authorization") String authHeader) {
+        ResponseEntity<?> authCheck = checkAuth(authHeader);
+        if (authCheck != null) {
+            return authCheck;
+        }
+
+        // Prima verifica se la prenotazione esiste
+        Prenotazione prenotazione = prenotazioneService.getPrenotazioneById(id);
+        if (prenotazione == null) {
+            return new ResponseEntity<>(
+                Collections.singletonMap("error", "Prenotazione non trovata"),
+                HttpStatus.NOT_FOUND
+            );
+        }
+
+        // Ottieni i dettagli completi
+        List<Map<String, Object>> dettagliCompleti = prenotazioneService.getPrenotazioneCompleteDetails(id);
+        
+        return new ResponseEntity<>(
+            Map.of(
+                "prenotazione", prenotazione,
+                "dettagliCompleti", dettagliCompleti,
+                "totalDettagli", dettagliCompleti.size()
+            ),
+            HttpStatus.OK
+        );
+    }
+
+    // Vista completa di tutte le prenotazioni con dettagli - ACCESSIBILE A TUTTI GLI UTENTI AUTENTICATI
+    @GetMapping("/all-details")
+    public ResponseEntity<?> getAllPrenotazioniWithDetails(@RequestHeader("Authorization") String authHeader) {
+        ResponseEntity<?> authCheck = checkAuth(authHeader);
+        if (authCheck != null) {
+            return authCheck;
+        }
+
+        List<Map<String, Object>> dettagliCompleti = prenotazioneService.getAllCompleteDetails();
+        
+        return new ResponseEntity<>(
+            Map.of(
+                "prenotazioni", dettagliCompleti,
+                "totalPrenotazioni", dettagliCompleti.size()
+            ),
+            HttpStatus.OK
+        );
+    }
+
+    // Prenotazioni per stato - ACCESSIBILE A TUTTI GLI UTENTI AUTENTICATI
+    @GetMapping("/stato/{stato}")
+    public ResponseEntity<?> getPrenotazioniByStato(@PathVariable String stato, @RequestHeader("Authorization") String authHeader) {
+        ResponseEntity<?> authCheck = checkAuth(authHeader);
+        if (authCheck != null) {
+            return authCheck;
+        }
+
+        try {
+            Prenotazione.StatoPrenotazione statoEnum = Prenotazione.StatoPrenotazione.valueOf(stato.toUpperCase());
+            List<Prenotazione> prenotazioni = prenotazioneService.getPrenotazioniByStato(statoEnum);
+            
+            return new ResponseEntity<>(
+                Map.of(
+                    "stato", stato,
+                    "prenotazioni", prenotazioni,
+                    "totalPrenotazioni", prenotazioni.size()
+                ),
+                HttpStatus.OK
+            );
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(
+                Collections.singletonMap("error", "Stato non valido. Stati disponibili: PRENOTATA, BLOCCATA, MANUTENZIONE, ANNULLATA"),
+                HttpStatus.BAD_REQUEST
+            );
+        }
+    }
+
+    // Prenotazioni future - ACCESSIBILE A TUTTI GLI UTENTI AUTENTICATI
+    @GetMapping("/future")
+    public ResponseEntity<?> getPrenotazioniFuture(@RequestHeader("Authorization") String authHeader) {
+        ResponseEntity<?> authCheck = checkAuth(authHeader);
+        if (authCheck != null) {
+            return authCheck;
+        }
+
+        List<Prenotazione> prenotazioni = prenotazioneService.getPrenotazioniFuture();
+        
+        return new ResponseEntity<>(
+            Map.of(
+                "prenotazioni", prenotazioni,
+                "totalPrenotazioni", prenotazioni.size()
+            ),
             HttpStatus.OK
         );
     }

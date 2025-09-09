@@ -2,10 +2,12 @@ package com.prenotazioni.controller;
 
 import com.prenotazioni.service.JwtService;
 import com.prenotazioni.service.AulaService;
+import com.prenotazioni.service.PrenotazioneService;
 import com.prenotazioni.model.Aula;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,9 @@ public class RoomController {
     
     @Autowired
     private JwtService jwtService;
+    
+    @Autowired
+    private PrenotazioneService prenotazioneService;
 
     // Metodo privato per verificare autenticazione (senza controllo ruolo)
     private ResponseEntity<?> checkAuth(String authHeader) {
@@ -64,6 +69,25 @@ public class RoomController {
         );
     }
 
+    // Vista completa di tutte le prenotazioni - ACCESSIBILE A TUTTI GLI UTENTI AUTENTICATI
+    @GetMapping("/all-details")
+    public ResponseEntity<?> getAllRoomsWithDetails(@RequestHeader("Authorization") String authHeader) {
+        ResponseEntity<?> authCheck = checkAuth(authHeader);
+        if (authCheck != null) {
+            return authCheck;
+        }
+
+        List<Map<String, Object>> dettagliCompleti = prenotazioneService.getAllCompleteDetails();
+        
+        return new ResponseEntity<>(
+            Map.of(
+                "prenotazioni", dettagliCompleti,
+                "totalPrenotazioni", dettagliCompleti.size()
+            ),
+            HttpStatus.OK
+        );
+    }
+
     // Ottieni singola aula per ID - ACCESSIBILE A TUTTI GLI UTENTI AUTENTICATI  
     @GetMapping("/{id}")
     public ResponseEntity<?> getRoomById(@PathVariable Long id, @RequestHeader("Authorization") String authHeader) {
@@ -82,6 +106,36 @@ public class RoomController {
 
         return new ResponseEntity<>(
             Collections.singletonMap("room", aula.get()),
+            HttpStatus.OK
+        );
+    }
+
+    // Ottieni dettagli completi aula con prenotazioni - ACCESSIBILE A TUTTI GLI UTENTI AUTENTICATI
+    @GetMapping("/{id}/details")
+    public ResponseEntity<?> getRoomDetailsById(@PathVariable Long id, @RequestHeader("Authorization") String authHeader) {
+        ResponseEntity<?> authCheck = checkAuth(authHeader);
+        if (authCheck != null) {
+            return authCheck;
+        }
+
+        // Prima verifica se l'aula esiste
+        java.util.Optional<Aula> aula = aulaService.getAulaById(id);
+        if (aula.isEmpty()) {
+            return new ResponseEntity<>(
+                Collections.singletonMap("error", "Aula non trovata"),
+                HttpStatus.NOT_FOUND
+            );
+        }
+
+        // Ottieni i dettagli completi
+        List<Map<String, Object>> dettagliCompleti = prenotazioneService.getRoomCompleteDetails(id);
+        
+        return new ResponseEntity<>(
+            Map.of(
+                "aula", aula.get(),
+                "prenotazioni", dettagliCompleti,
+                "totalPrenotazioni", dettagliCompleti.size()
+            ),
             HttpStatus.OK
         );
     }
