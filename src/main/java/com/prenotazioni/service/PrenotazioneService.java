@@ -43,16 +43,25 @@ public class PrenotazioneService {
         }
         
         Optional<Aula> aula = aulaRepository.findById(aulaId);
-        Optional<Corso> corso = corsoRepository.findById(corsoId);
         Optional<Utente> utente = utenteRepository.findById(utenteId);
         
-        if (aula.isEmpty() || corso.isEmpty() || utente.isEmpty()) {
+        if (aula.isEmpty() || utente.isEmpty()) {
             return null;
+        }
+        
+        // Corso opzionale - può essere null per prenotazioni libere
+        Optional<Corso> corso = Optional.empty();
+        if (corsoId != null) {
+            corso = corsoRepository.findById(corsoId);
+            if (corso.isEmpty()) {
+                // Se viene fornito un corsoId ma non esiste, fallisce
+                return null;
+            }
         }
         
         Prenotazione prenotazione = new Prenotazione();
         prenotazione.setAula(aula.get());
-        prenotazione.setCorso(corso.get());
+        prenotazione.setCorso(corso.orElse(null)); // Può essere null
         prenotazione.setUtente(utente.get());
         prenotazione.setInizio(inizio);
         prenotazione.setFine(fine);
