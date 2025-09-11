@@ -224,4 +224,33 @@ public class PrenotazioneService {
     public List<Prenotazione> getPrenotazioniFuture() {
         return prenotazioneRepository.findPrenotazioniFuture(LocalDateTime.now());
     }
+    
+    // Metodo admin per annullare qualsiasi prenotazione
+    public boolean annullaPrenotazioneAsAdmin(Long prenotazioneId, Long adminId, String motivo) {
+        Optional<Prenotazione> prenotazioneOpt = prenotazioneRepository.findById(prenotazioneId);
+        if (prenotazioneOpt.isEmpty()) {
+            return false;
+        }
+        
+        Prenotazione prenotazione = prenotazioneOpt.get();
+        
+        // Verifica che l'admin esista
+        Optional<Utente> admin = utenteRepository.findById(adminId);
+        if (admin.isEmpty() || !"admin".equals(admin.get().getRuolo())) {
+            return false;
+        }
+        
+        // Gli admin possono eliminare qualsiasi prenotazione, indipendentemente dallo stato
+        prenotazione.setStato(StatoPrenotazione.ANNULLATA);
+        
+        // Aggiorna la descrizione per indicare l'azione admin
+        String descrizioneOriginale = prenotazione.getDescrizione() != null ? prenotazione.getDescrizione() : "";
+        String nuovaDescrizione = descrizioneOriginale + 
+            (descrizioneOriginale.isEmpty() ? "" : " | ") +
+            "ANNULLATA DALL'AMMINISTRATORE: " + motivo;
+        prenotazione.setDescrizione(nuovaDescrizione);
+        
+        prenotazioneRepository.save(prenotazione);
+        return true;
+    }
 }

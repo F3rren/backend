@@ -3,6 +3,7 @@ package com.prenotazioni.controller.admin;
 import com.prenotazioni.service.AuthService;
 import com.prenotazioni.service.JwtService;
 import com.prenotazioni.service.AulaService;
+import com.prenotazioni.service.PrenotazioneService;
 import com.prenotazioni.dto.RegisterRequest;
 import com.prenotazioni.dto.AulaRequest;
 import com.prenotazioni.model.Utente;
@@ -10,6 +11,7 @@ import com.prenotazioni.model.Aula;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,6 +28,8 @@ public class AdminController {
     private JwtService jwtService;
     @Autowired
     private AulaService aulaService;
+    @Autowired
+    private PrenotazioneService prenotazioneService;
 
     // Metodo privato per verificare se l'utente è admin
     private ResponseEntity<?> checkAdminAccess(String authHeader) {
@@ -249,5 +253,54 @@ public class AdminController {
             Collections.singletonMap("message", "Aula eliminata con successo"),
             HttpStatus.OK
         );
+    }
+
+    // ========== GESTIONE PRENOTAZIONI ADMIN ==========
+
+    // Elimina prenotazione come admin (può eliminare qualsiasi prenotazione)
+    @DeleteMapping("/prenotazioni/{id}")
+    public ResponseEntity<?> deletePrenotazioneAsAdmin(@PathVariable Long id, 
+                                                      @RequestHeader("Authorization") String authHeader,
+                                                      @RequestBody(required = false) Map<String, String> requestBody) {
+        ResponseEntity<?> accessCheck = checkAdminAccess(authHeader);
+        if (accessCheck != null) {
+            return accessCheck;
+        }
+
+        try {
+            // Estrai il token per ottenere l'ID dell'admin
+            String token = authHeader.substring(7);
+            Long adminId = jwtService.getUserIdFromToken(token);
+            
+            // Motivo opzionale per l'eliminazione
+            String motivo = (requestBody != null && requestBody.get("reason") != null) 
+                ? requestBody.get("reason") 
+                : "Eliminazione da parte dell'amministratore";
+
+            // Tentativo di eliminazione forzata per admin
+            boolean eliminata = prenotazioneService.annullaPrenotazioneAsAdmin(id, adminId, motivo);
+            
+            if (!eliminata) {
+                return new ResponseEntity<>(
+                    Collections.singletonMap("error", "Impossibile eliminare la prenotazione. Verifica che l'ID sia corretto."),
+                    HttpStatus.NOT_FOUND
+                );
+            }
+
+            return new ResponseEntity<>(
+                Map.of(
+                    "message", "Prenotazione eliminata con successo dall'amministratore",
+                    "adminAction", true,
+                    "reason", motivo
+                ),
+                HttpStatus.OK
+            );
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(
+                Collections.singletonMap("error", "Errore durante l'eliminazione della prenotazione: " + e.getMessage()),
+                HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
     }
 }

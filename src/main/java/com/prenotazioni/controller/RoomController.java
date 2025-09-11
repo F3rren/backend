@@ -4,6 +4,7 @@ import com.prenotazioni.service.JwtService;
 import com.prenotazioni.service.AulaService;
 import com.prenotazioni.service.PrenotazioneService;
 import com.prenotazioni.model.Aula;
+import com.prenotazioni.dto.RoomDetailsResponse;
 
 import java.util.Collections;
 import java.util.List;
@@ -70,7 +71,7 @@ public class RoomController {
     }
 
     // Vista completa di tutte le prenotazioni - ACCESSIBILE A TUTTI GLI UTENTI AUTENTICATI
-    @GetMapping("/all-details")
+    @GetMapping("/details")
     public ResponseEntity<?> getAllRoomsWithDetails(@RequestHeader("Authorization") String authHeader) {
         ResponseEntity<?> authCheck = checkAuth(authHeader);
         if (authCheck != null) {
@@ -180,6 +181,44 @@ public class RoomController {
 
         return new ResponseEntity<>(
             Collections.singletonMap("rooms", aule),
+            HttpStatus.OK
+        );
+    }
+
+    // Endpoint per ottenere tutte le aule con dettagli completi (formato mock-like)
+    @GetMapping("/detailed")
+    public ResponseEntity<?> getAllRoomsDetailed(@RequestHeader("Authorization") String authHeader) {
+        ResponseEntity<?> authCheck = checkAuth(authHeader);
+        if (authCheck != null) {
+            return authCheck;
+        }
+
+        List<RoomDetailsResponse> roomDetails = aulaService.getAllRoomsWithDetails();
+        
+        return new ResponseEntity<>(
+            Collections.singletonMap("rooms", roomDetails),
+            HttpStatus.OK
+        );
+    }
+
+    // Endpoint per ottenere una singola aula con dettagli completi
+    @GetMapping("/{id}/detailed")
+    public ResponseEntity<?> getRoomDetailed(@PathVariable Long id, @RequestHeader("Authorization") String authHeader) {
+        ResponseEntity<?> authCheck = checkAuth(authHeader);
+        if (authCheck != null) {
+            return authCheck;
+        }
+
+        RoomDetailsResponse roomDetails = aulaService.getRoomWithDetails(id);
+        if (roomDetails == null) {
+            return new ResponseEntity<>(
+                Collections.singletonMap("error", "Aula non trovata"),
+                HttpStatus.NOT_FOUND
+            );
+        }
+        
+        return new ResponseEntity<>(
+            Collections.singletonMap("room", roomDetails),
             HttpStatus.OK
         );
     }

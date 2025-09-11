@@ -157,4 +157,8 @@ public interface PrenotazioneRepository extends JpaRepository<Prenotazione, Long
            "LEFT JOIN p.corso c " +
            "WHERE p.id = :prenotazioneId")
     List<Map<String, Object>> findCompleteDetailsByPrenotazioneId(@Param("prenotazioneId") Long prenotazioneId);
+    
+    // Trova tutte le prenotazioni per una specifica aula
+    @Query("SELECT p FROM Prenotazione p WHERE p.aula.id = :aulaId ORDER BY p.inizio ASC")
+    List<Prenotazione> findByAulaId(@Param("aulaId") Long aulaId);
 }
