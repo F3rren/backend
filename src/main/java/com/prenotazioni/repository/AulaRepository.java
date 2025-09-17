@@ -35,4 +35,18 @@ public interface AulaRepository extends JpaRepository<Aula, Long> {
     // Trova aule ordinate per piano e nome
     @Query("SELECT a FROM Aula a ORDER BY a.piano ASC, a.nome ASC")
     List<Aula> findAllOrderByPianoAndNome();
+    
+    // Trova aule fisiche o virtuali
+    List<Aula> findByIsVirtual(boolean isVirtual);
+    
+    // Trova aule fisiche ordinate per piano e nome
+    @Query("SELECT a FROM Aula a WHERE a.isVirtual = false ORDER BY a.piano ASC, a.nome ASC")
+    List<Aula> findPhysicalRoomsOrderByPianoAndNome();
+    
+    // Trova aule virtuali ordinate per nome
+    @Query("SELECT a FROM Aula a WHERE a.isVirtual = true ORDER BY a.nome ASC")
+    List<Aula> findVirtualRoomsOrderByNome();
+    
+    // Conta aule fisiche e virtuali
+    long countByIsVirtual(boolean isVirtual);
 }

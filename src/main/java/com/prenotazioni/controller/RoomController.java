@@ -222,4 +222,104 @@ public class RoomController {
             HttpStatus.OK
         );
     }
+
+    // Endpoint per ottenere solo le aule fisiche
+    @GetMapping("/physical")
+    public ResponseEntity<?> getPhysicalRooms(@RequestHeader("Authorization") String authHeader) {
+        ResponseEntity<?> authCheck = checkAuth(authHeader);
+        if (authCheck != null) {
+            return authCheck;
+        }
+
+        List<Aula> aule = aulaService.getPhysicalRoomsOrdered();
+        return new ResponseEntity<>(
+            Map.of(
+                "rooms", aule,
+                "totalRooms", aule.size(),
+                "type", "physical"
+            ),
+            HttpStatus.OK
+        );
+    }
+
+    // Endpoint per ottenere solo le aule virtuali
+    @GetMapping("/virtual")
+    public ResponseEntity<?> getVirtualRooms(@RequestHeader("Authorization") String authHeader) {
+        ResponseEntity<?> authCheck = checkAuth(authHeader);
+        if (authCheck != null) {
+            return authCheck;
+        }
+
+        List<Aula> aule = aulaService.getVirtualRoomsOrdered();
+        return new ResponseEntity<>(
+            Map.of(
+                "rooms", aule,
+                "totalRooms", aule.size(),
+                "type", "virtual"
+            ),
+            HttpStatus.OK
+        );
+    }
+
+    // Endpoint per ottenere aule fisiche con dettagli completi
+    @GetMapping("/physical/detailed")
+    public ResponseEntity<?> getPhysicalRoomsDetailed(@RequestHeader("Authorization") String authHeader) {
+        ResponseEntity<?> authCheck = checkAuth(authHeader);
+        if (authCheck != null) {
+            return authCheck;
+        }
+
+        List<RoomDetailsResponse> roomDetails = aulaService.getPhysicalRoomsWithDetails();
+        return new ResponseEntity<>(
+            Map.of(
+                "rooms", roomDetails,
+                "totalRooms", roomDetails.size(),
+                "type", "physical"
+            ),
+            HttpStatus.OK
+        );
+    }
+
+    // Endpoint per ottenere aule virtuali con dettagli completi
+    @GetMapping("/virtual/detailed")
+    public ResponseEntity<?> getVirtualRoomsDetailed(@RequestHeader("Authorization") String authHeader) {
+        ResponseEntity<?> authCheck = checkAuth(authHeader);
+        if (authCheck != null) {
+            return authCheck;
+        }
+
+        List<RoomDetailsResponse> roomDetails = aulaService.getVirtualRoomsWithDetails();
+        return new ResponseEntity<>(
+            Map.of(
+                "rooms", roomDetails,
+                "totalRooms", roomDetails.size(),
+                "type", "virtual"
+            ),
+            HttpStatus.OK
+        );
+    }
+
+    // Endpoint per ottenere statistiche aule fisiche vs virtuali
+    @GetMapping("/stats")
+    public ResponseEntity<?> getRoomsStats(@RequestHeader("Authorization") String authHeader) {
+        ResponseEntity<?> authCheck = checkAuth(authHeader);
+        if (authCheck != null) {
+            return authCheck;
+        }
+
+        long physicalCount = aulaService.countPhysicalRooms();
+        long virtualCount = aulaService.countVirtualRooms();
+        long totalCount = physicalCount + virtualCount;
+
+        return new ResponseEntity<>(
+            Map.of(
+                "totalRooms", totalCount,
+                "physicalRooms", physicalCount,
+                "virtualRooms", virtualCount,
+                "physicalPercentage", totalCount > 0 ? Math.round((physicalCount * 100.0) / totalCount) : 0,
+                "virtualPercentage", totalCount > 0 ? Math.round((virtualCount * 100.0) / totalCount) : 0
+            ),
+            HttpStatus.OK
+        );
+    }
 }

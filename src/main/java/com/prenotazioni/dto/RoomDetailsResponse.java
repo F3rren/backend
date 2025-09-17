@@ -7,6 +7,7 @@ public class RoomDetailsResponse {
     private String name;
     private int floor;
     private int capacity;
+    private boolean isVirtual;
     private String status;
     private CurrentBooking booking;
     private BlockInfo blocked;
@@ -20,6 +21,15 @@ public class RoomDetailsResponse {
         this.name = name;
         this.floor = floor;
         this.capacity = capacity;
+        this.isVirtual = false;
+    }
+
+    public RoomDetailsResponse(Long id, String name, int floor, int capacity, boolean isVirtual) {
+        this.id = id;
+        this.name = name;
+        this.floor = floor;
+        this.capacity = capacity;
+        this.isVirtual = isVirtual;
     }
 
     // Inner class per la prenotazione corrente
@@ -124,6 +134,9 @@ public class RoomDetailsResponse {
     
     public int getCapacity() { return capacity; }
     public void setCapacity(int capacity) { this.capacity = capacity; }
+    
+    public boolean isVirtual() { return isVirtual; }
+    public void setVirtual(boolean isVirtual) { this.isVirtual = isVirtual; }
     
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
